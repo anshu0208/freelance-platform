@@ -14,9 +14,10 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    username: "",
+    name: "",          // ✅ FIXED
     email: "",
     password: "",
+    role: "buyer",     // ✅ ADDED
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ const Register = () => {
     e.preventDefault();
 
     // 🔥 VALIDATION
-    if (!form.username || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password) {
       return showError("All fields are required");
     }
 
@@ -38,15 +39,19 @@ const Register = () => {
     }
 
     const toastId = showLoading("Creating account...");
-
     setLoading(true);
 
     try {
-      await register(form);
+     const res = await register(form);
 
       updateToast(toastId, "Account created successfully 🎉");
 
-      navigate("/");
+      //  ROLE BASED REDIRECT
+      if (res.user.role === "seller") {
+        navigate("/seller-dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       updateToast(
         toastId,
@@ -90,15 +95,17 @@ const Register = () => {
             Start your journey today
           </p>
 
+          {/* ✅ NAME INPUT */}
           <input
             type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
+            name="name"
+            placeholder="Full Name"
+            value={form.name}
             onChange={handleChange}
             className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition"
           />
 
+          {/* EMAIL */}
           <input
             type="email"
             name="email"
@@ -108,15 +115,42 @@ const Register = () => {
             className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition"
           />
 
+          {/* PASSWORD */}
           <input
             type="password"
             name="password"
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full mb-6 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition"
+            className="w-full mb-4 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black outline-none transition"
           />
 
+          {/* ✅ ROLE SELECTION */}
+          <div className="mb-6 flex justify-center gap-6">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="buyer"
+                checked={form.role === "buyer"}
+                onChange={handleChange}
+              />
+              Buyer
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="seller"
+                checked={form.role === "seller"}
+                onChange={handleChange}
+              />
+              Seller
+            </label>
+          </div>
+
+          {/* SUBMIT */}
           <button
             disabled={loading}
             className="w-full bg-black text-white p-3 rounded-lg font-medium hover:bg-gray-800 transition active:scale-[0.98] disabled:opacity-70"
@@ -124,6 +158,7 @@ const Register = () => {
             {loading ? "Creating..." : "Register"}
           </button>
 
+          {/* LOGIN */}
           <p className="text-sm text-gray-500 mt-6 text-center">
             Already have an account?{" "}
             <span

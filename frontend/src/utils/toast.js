@@ -1,17 +1,35 @@
 import toast from "react-hot-toast";
 
-export const showSuccess = (msg) => {
-  toast.success(msg);
-};
+let activeToast = null;
 
-export const showError = (msg) => {
-  toast.error(msg);
-};
-
+// ✅ LOADING (only one at a time)
 export const showLoading = (msg = "Loading...") => {
-  return toast.loading(msg);
+  if (activeToast) {
+    toast.dismiss(activeToast);
+  }
+
+  activeToast = toast.loading(msg);
+  return activeToast;
 };
 
+// ✅ SUCCESS
+export const showSuccess = (msg) => {
+  if (activeToast) toast.dismiss(activeToast);
+  activeToast = toast.success(msg);
+};
+
+// ✅ ERROR
+export const showError = (msg) => {
+  if (activeToast) toast.dismiss(activeToast);
+  activeToast = toast.error(msg);
+};
+
+// ✅ UPDATE (SAFE)
 export const updateToast = (id, msg, type = "success") => {
-  toast[type](msg, { id });
+  toast.dismiss(id);
+
+  activeToast =
+    type === "error"
+      ? toast.error(msg)
+      : toast.success(msg);
 };

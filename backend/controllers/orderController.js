@@ -12,6 +12,7 @@ export const createOrder = async (req, res) => {
     const { gigId } = req.body;
     const { user } = req;
 
+    // 🔒 1. Only buyers allowed
     if (user.role !== "buyer") {
       return res.status(403).json({
         success: false,
@@ -19,6 +20,7 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // 🔍 2. Find gig
     const gig = await Gig.findById(gigId);
     if (!gig) {
       return res.status(404).json({
@@ -27,6 +29,29 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    // 🚫 3. Prevent buying own gig (VERY IMPORTANT)
+    if (gig.user.toString() === user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot buy your own gig",
+      });
+    }
+
+    // 🚫 4. Prevent duplicate orders (PRO FEATURE)
+    const existingOrder = await Order.findOne({
+      gigId,
+      buyerId: user._id,
+      status: { $in: ["pending", "accepted"] },
+    });
+
+    if (existingOrder) {
+      return res.status(400).json({
+        success: false,
+        message: "You already have an active order for this gig",
+      });
+    }
+
+    // ✅ 5. Create order
     const order = await Order.create({
       gigId,
       buyerId: user._id,
@@ -125,6 +150,8 @@ export const getSingleOrder = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 // ================= ACCEPT ORDER =================
 export const acceptOrder = async (req, res) => {

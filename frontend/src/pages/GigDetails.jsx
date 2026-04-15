@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
-// ✅ TOAST
 import {
   showError,
   showLoading,
   updateToast,
-  showSuccess,
 } from "../utils/toast";
 
 const Skeleton = () => (
@@ -38,13 +37,19 @@ const GigDetails = () => {
   const [editRating, setEditRating] = useState(0);
   const [editComment, setEditComment] = useState("");
 
+  const { user } = useAuth();
+
+  const isSeller = gig?.user?._id === user?._id;
+
+  const canReview =
+    user?.role === "buyer" &&
+    !isSeller &&
+    orderId;
+
+  // 🔥 FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
-      const toastId = showLoading("Loading gig...");
-
       try {
-        setError(null);
-
         const [gigRes, reviewRes, orderRes] = await Promise.all([
           API.get(`/gigs/${id}`),
           API.get(`/reviews/gigs/${id}`),
@@ -74,13 +79,9 @@ const GigDetails = () => {
           if (already) setAlreadyReviewed(true);
         }
 
-        updateToast(toastId, "Gig loaded ✅");
-
       } catch (err) {
-        console.error(err);
         setError("Failed to load gig");
-
-        updateToast(toastId, "Failed to load gig ❌", "error");
+        showError("Failed to load gig");
       } finally {
         setLoading(false);
       }
@@ -122,29 +123,21 @@ const GigDetails = () => {
           });
 
           updateToast(toastId, "Payment successful 🎉");
-
           navigate(`/orders/${res.data.order._id}`);
-        },
-        modal: {
-          ondismiss: () => {
-            setPaying(false);
-            updateToast(toastId, "Payment cancelled", "error");
-          },
         },
       });
 
       rzp.open();
-    } catch (err) {
-      console.error(err);
-      setPaying(false);
+
+    } catch {
       updateToast(toastId, "Payment failed ❌", "error");
+    } finally {
+      setPaying(false);
     }
   };
 
   // ⭐ SUBMIT REVIEW
   const handleSubmit = async () => {
-    if (!orderId) return showError("Complete order first");
-    if (alreadyReviewed) return showError("Already reviewed");
     if (!rating || !comment.trim()) return showError("Fill all fields");
 
     const toastId = showLoading("Submitting review...");
@@ -166,25 +159,14 @@ const GigDetails = () => {
 
       updateToast(toastId, "Review submitted ✅");
 
-    } catch (err) {
-      updateToast(
-        toastId,
-        err.response?.data?.message || "Error",
-        "error"
-      );
+    } catch {
+      updateToast(toastId, "Error", "error");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // ✏️ START EDIT
-  const startEdit = (review) => {
-    setEditingId(review._id);
-    setEditRating(review.rating);
-    setEditComment(review.comment);
-  };
-
-  // ✏️ UPDATE REVIEW (🔥 FIXED BUG HERE)
+  // ✏️ UPDATE REVIEW
   const handleUpdate = async () => {
     const toastId = showLoading("Updating review...");
 
@@ -194,16 +176,15 @@ const GigDetails = () => {
         comment: editComment,
       });
 
-      // ✅ FIXED ENDPOINT (VERY IMPORTANT)
       const res = await API.get(`/reviews/gigs/${id}`);
       setReviews(res.data.reviews);
 
       setEditingId(null);
 
-      updateToast(toastId, "Review updated ✏️");
+      updateToast(toastId, "Updated ✏️");
 
-    } catch (err) {
-      updateToast(toastId, "Update failed", "error");
+    } catch {
+      updateToast(toastId, "Failed", "error");
     }
   };
 
@@ -215,9 +196,13 @@ const GigDetails = () => {
     <div className="bg-gray-50 min-h-screen py-10 px-4">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-10">
 
+        {/* LEFT */}
         <div className="lg:col-span-2 space-y-8">
 
-          <img src={gig.image} className="w-full h-[400px] object-cover rounded-2xl" />
+          <img
+            src={gig.image}
+            className="w-full h-[400px] object-cover rounded-2xl"
+          />
 
           <h1 className="text-3xl font-bold">{gig.title}</h1>
 
@@ -237,113 +222,107 @@ const GigDetails = () => {
 
             <h2 className="font-semibold">Reviews ({reviews.length})</h2>
 
-            {reviews.map((review) => (
-              <div key={review._id} className="border-b pb-4">
+            {reviews.map((review) => {
+              const isOwner =
+                review.buyerId?._id === user?._id;
 
-                <div className="flex justify-between">
-                  <p>{review.buyerId?.name}</p>
-                  <span className="text-xs text-gray-400">
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
+              return (
+                <div key={review._id} className="border-b pb-4">
 
-                {editingId === review._id ? (
-                  <>
-                    <div className="flex gap-2 text-xl">
-                      {[1,2,3,4,5].map((s) => (
-                        <span key={s} onClick={() => setEditRating(s)}>
-                          {s <= editRating ? "⭐" : "☆"}
-                        </span>
-                      ))}
-                    </div>
-
-                    <textarea
-                      value={editComment}
-                      onChange={(e) => setEditComment(e.target.value)}
-                      className="w-full border p-2 mt-2 rounded-lg"
-                    />
-
-                    <button onClick={handleUpdate} className="text-green-600 text-sm">
-                      Save
-                    </button>
-
-                    <button onClick={() => setEditingId(null)} className="ml-2 text-gray-500 text-sm">
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div>
-                      {[1,2,3,4,5].map((s) => (
-                        <span key={s}>
-                          {s <= review.rating ? "⭐" : "☆"}
-                        </span>
-                      ))}
-                    </div>
-
-                    <p>
-                      {review.comment}
-                      {review.isEdited && (
-                        <span className="text-xs text-gray-400 ml-2">(edited)</span>
-                      )}
-                    </p>
-
-                    <button
-                      onClick={() => startEdit(review)}
-                      className="text-blue-500 text-xs mt-1"
-                    >
-                      Edit
-                    </button>
-                  </>
-                )}
-
-              </div>
-            ))}
-
-            {/* ADD REVIEW */}
-            <div className="pt-4 border-t">
-
-              {!orderId && (
-                <p className="text-gray-400 text-sm">
-                  Purchase this gig to leave a review
-                </p>
-              )}
-
-              {alreadyReviewed && (
-                <p className="text-green-500 text-sm">
-                  ✅ You already reviewed this gig
-                </p>
-              )}
-
-              {orderId && !alreadyReviewed && (
-                <>
-                  <h3 className="font-semibold">Add Review</h3>
-
-                  <div className="flex gap-2 text-xl">
-                    {[1,2,3,4,5].map((s) => (
-                      <span key={s} onClick={() => setRating(s)}>
-                        {s <= rating ? "⭐" : "☆"}
-                      </span>
-                    ))}
+                  <div className="flex justify-between">
+                    <p>{review.buyerId?.name}</p>
+                    <span className="text-xs text-gray-400">
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
 
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="w-full border p-2 mt-2 rounded-lg"
-                  />
+                  {editingId === review._id ? (
+                    <>
+                      <div className="flex gap-2 text-xl">
+                        {[1,2,3,4,5].map((s) => (
+                          <span key={s} onClick={() => setEditRating(s)}>
+                            {s <= editRating ? "⭐" : "☆"}
+                          </span>
+                        ))}
+                      </div>
 
-                  <button
-                    disabled={submitting}
-                    onClick={handleSubmit}
-                    className="bg-green-500 text-white px-4 py-2 mt-2 rounded-lg"
-                  >
-                    {submitting ? "Submitting..." : "Submit"}
-                  </button>
-                </>
-              )}
+                      <textarea
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value)}
+                        className="w-full border p-2 mt-2 rounded-lg"
+                      />
 
-            </div>
+                      <button onClick={handleUpdate} className="text-green-600 text-sm">
+                        Save
+                      </button>
+
+                      <button onClick={() => setEditingId(null)} className="ml-2 text-gray-500 text-sm">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        {[1,2,3,4,5].map((s) => (
+                          <span key={s}>
+                            {s <= review.rating ? "⭐" : "☆"}
+                          </span>
+                        ))}
+                      </div>
+
+                      <p>
+                        {review.comment}
+                        {review.isEdited && (
+                          <span className="text-xs text-gray-400 ml-2">(edited)</span>
+                        )}
+                      </p>
+
+                      {isOwner && (
+                        <button
+                          onClick={() => {
+                            setEditingId(review._id);
+                            setEditRating(review.rating);
+                            setEditComment(review.comment);
+                          }}
+                          className="text-blue-500 text-xs mt-1"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* ADD REVIEW */}
+            {canReview && !alreadyReviewed && (
+              <div className="pt-4 border-t space-y-3">
+
+                <h3 className="font-semibold">Add Review</h3>
+
+                <div className="flex gap-2 text-xl">
+                  {[1,2,3,4,5].map((s) => (
+                    <span key={s} onClick={() => setRating(s)}>
+                      {s <= rating ? "⭐" : "☆"}
+                    </span>
+                  ))}
+                </div>
+
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  className="w-full border p-2 rounded-lg"
+                />
+
+                <button
+                  onClick={handleSubmit}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
+            )}
 
           </div>
         </div>
@@ -354,12 +333,14 @@ const GigDetails = () => {
             ₹{gig.price}
           </h2>
 
-          <button
-            onClick={handlePayment}
-            className="w-full bg-green-500 text-white py-3 mt-4 rounded-lg hover:bg-green-600 transition"
-          >
-            Continue
-          </button>
+          {user?.role === "buyer" && !isSeller && (
+            <button
+              onClick={handlePayment}
+              className="w-full bg-green-500 text-white py-3 mt-4 rounded-lg"
+            >
+              Continue
+            </button>
+          )}
         </div>
 
       </div>

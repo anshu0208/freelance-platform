@@ -21,7 +21,7 @@ const Navbar = () => {
   const isActive = (path) =>
     location.pathname === path
       ? "text-green-600 font-semibold"
-      : "text-gray-700";
+      : "text-gray-700 hover:text-black";
 
   return (
     <div className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b">
@@ -56,29 +56,47 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              {/* NAV LINKS */}
+              {/* 🔥 BUYER HOME (NEW) */}
+              {user.role === "buyer" && (
+                <Link to="/" className={`text-sm ${isActive("/")}`}>
+                  Home
+                </Link>
+              )}
+
+              {/* 🔥 COMMON LINKS */}
               <Link to="/orders" className={`text-sm ${isActive("/orders")}`}>
-                Orders
+                {user.role === "buyer" ? "My Orders" : "Orders"}
               </Link>
 
+              <Link to="/chat" className={`text-sm ${isActive("/chat")}`}>
+                Messages
+              </Link>
+
+              {/* 🔥 SELLER LINKS */}
               {user.role === "seller" && (
                 <>
-                  <Link to="/create-gig" className={isActive("/create-gig")}>
-                    Create Gig
-                  </Link>
-
                   <Link
                     to="/seller-dashboard"
-                    className={isActive("/seller-dashboard")}
+                    className={`text-sm ${isActive("/seller-dashboard")}`}
                   >
                     Dashboard
                   </Link>
+
+                  <Link
+                    to="/my-gigs"
+                    className={`text-sm ${isActive("/my-gigs")}`}
+                  >
+                    My Gigs
+                  </Link>
+
+                  <Link
+                    to="/create-gig"
+                    className={`text-sm ${isActive("/create-gig")}`}
+                  >
+                    Create Gig
+                  </Link>
                 </>
               )}
-
-              <Link to="/chat" className={isActive("/chat")}>
-                Messages
-              </Link>
 
               {/* 🔥 USER DROPDOWN */}
               <div className="relative">
@@ -113,7 +131,9 @@ const Navbar = () => {
                       className="block px-4 py-2 hover:bg-gray-100 text-sm"
                       onClick={() => setOpen(false)}
                     >
-                      Orders
+                      {user.role === "buyer"
+                        ? "My Orders"
+                        : "Orders Received"}
                     </Link>
 
                     <button

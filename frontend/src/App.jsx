@@ -9,6 +9,8 @@ import OrderDetails from "./pages/OrderDetails";
 import CreateGig from "./pages/CreateGig";
 import SellerDashboard from "./pages/SellerDashboard";
 import Chat from "./pages/Chat";
+import MyGigs from "./pages/MyGigs";
+import EditGig from "./pages/EditGig";
 
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./routes/ProtectedRoutes";
@@ -110,6 +112,28 @@ const App = () => {
           </ProtectedRoute>
         }
       />
+
+          <Route
+      path="/my-gigs"
+      element={
+        <ProtectedRoute>
+          <Layout>
+            <MyGigs />
+          </Layout>
+        </ProtectedRoute>
+      }
+    />
+
+        <Route
+      path="/edit-gig/:id"
+      element={
+        <ProtectedRoute>
+          <Layout>
+            <EditGig />
+          </Layout>
+        </ProtectedRoute>
+      }
+    />
 
       <Route
         path="/chat"

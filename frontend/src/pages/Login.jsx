@@ -32,22 +32,31 @@ const Login = () => {
       return showError("Email and password are required");
     }
 
-    const toastId = showLoading("Logging in...");
-
-    setLoading(true);
+    // const toastId = showLoading("Logging in...");
+    // setLoading(true);
 
     try {
-      await login(form);
+      const res = await login(form);
 
-      updateToast(toastId, "Welcome back 👋");
+      // ✅ SAFE CHECK
+      if (!res || !res.user) {
+        throw new Error("Login failed");
+      }
 
-      navigate("/");
+      // updateToast(toastId, "Welcome back 👋");
+
+      // 🔥 ROLE BASED REDIRECT (CLEAN)
+      const role = res.user.role;
+
+      if (role === "seller") {
+        navigate("/seller-dashboard");
+      } else {
+        navigate("/");
+      }
+
     } catch (err) {
-      updateToast(
-        toastId,
-        err.response?.data?.message || "Invalid credentials",
-        "error"
-      );
+      // showError("Invalid credentials");
+
     } finally {
       setLoading(false);
     }
@@ -71,7 +80,6 @@ const Login = () => {
       {/* RIGHT SIDE */}
       <div className="relative flex flex-1 items-center justify-center px-4 sm:px-6 py-10 bg-gradient-to-br from-blue-300 via-blue-50 to-red-300">
 
-        {/* background pattern */}
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
         <form

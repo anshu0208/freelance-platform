@@ -27,7 +27,6 @@ const SellerDashboard = () => {
 
   useEffect(() => {
     const fetchDashboard = async () => {
-      const toastId = showLoading("Loading dashboard...");
 
       try {
         setError(null);
@@ -38,18 +37,10 @@ const SellerDashboard = () => {
 
         setData(res.data);
 
-        updateToast(toastId, "Dashboard loaded ✅");
 
       } catch (err) {
         setError("Failed to load dashboard");
-
-        updateToast(
-          toastId,
-          err.response?.data?.message || "Failed to load dashboard",
-          "error"
-        );
-
-        console.error(err);
+      showError(err.response?.data?.message || "Failed to load dashboard");  
       }
     };
 
