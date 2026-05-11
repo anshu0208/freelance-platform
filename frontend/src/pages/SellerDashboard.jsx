@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ FIX
+import { useNavigate } from "react-router-dom"; // 
 import API from "../services/api";
 import {
   LineChart,
@@ -11,7 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// ✅ TOAST UTILS
+// TOAST UTILS
 import {
   showError,
   showLoading,
@@ -47,7 +47,6 @@ const SellerDashboard = () => {
     fetchDashboard();
   }, [range]);
 
-  // 🔥 LOADING UI
   if (!data && !error) {
     return (
       <div className="min-h-screen bg-gray-50 p-10">
@@ -369,7 +368,7 @@ const SellerDashboard = () => {
 );
 };
 
-// 🔥 CARD
+//  CARD
 const StatCard = ({
   title,
   value,

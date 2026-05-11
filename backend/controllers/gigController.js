@@ -6,9 +6,7 @@ import {
   deleteFromCloudinary,
 } from "../config/cloudinary.js";
 
-// ======================================================
 // CREATE GIG
-// ======================================================
 
 export const createGig = async (req, res) => {
   try {
@@ -112,9 +110,7 @@ export const createGig = async (req, res) => {
   }
 };
 
-// ======================================================
 // UPDATE GIG
-// ======================================================
 
 export const updateGig = async (req, res) => {
 
@@ -145,9 +141,7 @@ export const updateGig = async (req, res) => {
       });
     }
 
-    // =====================================
     // FILE PATHS
-    // =====================================
 
     const avatarLocalPath =
       req.files?.avatar?.[0]?.path;
@@ -155,9 +149,7 @@ export const updateGig = async (req, res) => {
     const coverLocalPath =
       req.files?.coverImage?.[0]?.path;
 
-    // =====================================
     // REPLACE AVATAR
-    // =====================================
 
     if (avatarLocalPath) {
 
@@ -188,9 +180,7 @@ export const updateGig = async (req, res) => {
       }
     }
 
-    // =====================================
     // REPLACE COVER IMAGE
-    // =====================================
 
     if (coverLocalPath) {
 
@@ -279,9 +269,7 @@ export const updateGig = async (req, res) => {
   }
 };
 
-// ======================================================
 // DELETE GIG
-// ======================================================
 
 export const deleteGig = async (req, res) => {
 
@@ -376,9 +364,7 @@ export const deleteGig = async (req, res) => {
   }
 };
 
-// ======================================================
 // GET ALL GIGS
-// ======================================================
 
 export const getGigs = async (req, res) => {
 
@@ -483,9 +469,7 @@ export const getGigs = async (req, res) => {
   }
 };
 
-// ======================================================
 // GET CATEGORIES
-// ======================================================
 
 export const getCategories = async (
   req,
@@ -512,9 +496,7 @@ export const getCategories = async (
   }
 };
 
-// ======================================================
 // GET SINGLE GIG
-// ======================================================
 
 export const getGigById = async (
   req,
@@ -550,10 +532,7 @@ export const getGigById = async (
   }
 };
 
-// ======================================================
 // GET MY GIGS
-// ======================================================
-
 export const getMyGigs = async (
   req,
   res

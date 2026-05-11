@@ -79,7 +79,7 @@ const GigCard = ({ gig, onClick }) => (
   </div>
 );
 
-// 🔥 Skeleton
+//  Skeleton
 const SkeletonCard = () => (
   <div className="bg-white p-4 rounded-xl animate-pulse">
     <div className="h-40 bg-gray-200 rounded mb-4"></div>

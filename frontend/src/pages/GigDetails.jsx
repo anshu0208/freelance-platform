@@ -46,7 +46,7 @@ const GigDetails = () => {
     !isSeller &&
     orderId;
 
-  // 🔥 FETCH DATA
+  //  FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,7 +56,7 @@ const GigDetails = () => {
           API.get(`/orders`),
         ]);
 
-        setGig(gigRes.data);
+        setGig(gigRes.data.gig || gigRes.data);
 
         const reviewList = reviewRes.data.reviews || [];
         setReviews(reviewList);
@@ -136,7 +136,7 @@ const GigDetails = () => {
     }
   };
 
-  // ⭐ SUBMIT REVIEW
+  //  SUBMIT REVIEW
   const handleSubmit = async () => {
     if (!rating || !comment.trim()) return showError("Fill all fields");
 
@@ -200,11 +200,13 @@ const GigDetails = () => {
         <div className="lg:col-span-2 space-y-8">
 
           <img
-src={
-  gig.coverImage?.url ||
-  gig.avatar?.url ||
-  "/placeholder.jpg"
-}
+            src={
+              gig.coverImage?.url ||
+              gig.coverImage ||
+              gig.avatar?.url ||
+              gig.avatar ||
+              "/placeholder.jpg"
+            }
             className="w-full h-[400px] object-cover rounded-2xl"
           />
 

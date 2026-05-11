@@ -1,29 +1,37 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 // ================= CLOUDINARY CONFIG =================
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name:
+    process.env.CLOUDINARY_CLOUD_NAME,
+
+  api_key:
+    process.env.CLOUDINARY_API_KEY,
+
+  api_secret:
+    process.env.CLOUDINARY_API_SECRET,
 });
 
-// ================= SAFE FILE DELETE =================
+// ================= REMOVE LOCAL FILE =================
 
-const removeLocalFile = (filePath) => {
+const removeLocalFile = (
+  filePath
+) => {
   try {
 
-    if (filePath && fs.existsSync(filePath)) {
+    if (
+      filePath &&
+      fs.existsSync(filePath)
+    ) {
       fs.unlinkSync(filePath);
     }
 
   } catch (error) {
-    console.log(
-      "Error deleting local file:",
+
+    console.error(
+      "Local file delete failed:",
       error.message
     );
   }
@@ -33,7 +41,7 @@ const removeLocalFile = (filePath) => {
 
 const uploadOnCloudinary = async (
   localFilePath,
-  folder = "freelancex"
+  folder = "freelancex/gigs"
 ) => {
 
   try {
@@ -46,34 +54,39 @@ const uploadOnCloudinary = async (
       await cloudinary.uploader.upload(
         localFilePath,
         {
+
           folder,
 
           resource_type: "auto",
 
-          timeout: 60000,
-
           quality: "auto",
 
           fetch_format: "auto",
+
+          timeout: 60000,
         }
       );
 
-    // remove temp file
+    // remove temp file after upload
     removeLocalFile(localFilePath);
 
-    console.log(
-      "Cloudinary upload success:",
-      response.secure_url
-    );
+    // return only required fields
+    return {
+      url: response.secure_url,
 
-    return response;
+      public_id:
+        response.public_id,
+
+      resource_type:
+        response.resource_type,
+    };
 
   } catch (error) {
 
     // cleanup temp file
     removeLocalFile(localFilePath);
 
-    console.log(
+    console.error(
       "Cloudinary upload failed:",
       error.message
     );
@@ -85,7 +98,8 @@ const uploadOnCloudinary = async (
 // ================= DELETE =================
 
 const deleteFromCloudinary = async (
-  publicId
+  publicId,
+  resourceType = "image"
 ) => {
 
   try {
@@ -96,19 +110,18 @@ const deleteFromCloudinary = async (
 
     const result =
       await cloudinary.uploader.destroy(
-        publicId
+        publicId,
+        {
+          resource_type:
+            resourceType,
+        }
       );
-
-    console.log(
-      "Cloudinary delete success:",
-      publicId
-    );
 
     return result;
 
   } catch (error) {
 
-    console.log(
+    console.error(
       "Cloudinary delete failed:",
       error.message
     );
@@ -116,8 +129,6 @@ const deleteFromCloudinary = async (
     return null;
   }
 };
-
-// ================= EXPORTS =================
 
 export {
   uploadOnCloudinary,
