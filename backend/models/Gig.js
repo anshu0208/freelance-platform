@@ -30,6 +30,26 @@ const gigSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    avatar: {
+  url: {
+    type: String,
+    required: true,
+  },
+
+  public_id: {
+    type: String,
+    required: true,
+  },
+},
+     coverImage: {
+  url: {
+    type: String,
+  },
+
+  public_id: {
+    type: String,
+  },
+},
         averageRating: {
       type: Number,
       default: 0

@@ -72,146 +72,359 @@ const SellerDashboard = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-6xl mx-auto space-y-8">
+ return (
+  <div className="min-h-screen bg-[#f6f7fb] py-12 px-4 sm:px-6 lg:px-8">
 
-        {/* HEADER */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold">Seller Dashboard</h1>
-            <p className="text-gray-500">Track your growth 🚀</p>
+    <div className="max-w-7xl mx-auto">
+
+      {/* HEADER */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+
+        <div>
+
+          <p className="text-sm font-semibold tracking-[0.2em] uppercase text-green-600">
+            Seller Analytics
+          </p>
+
+          <h1 className="mt-3 text-5xl font-bold tracking-tight text-gray-900">
+            Dashboard
+          </h1>
+
+          <p className="mt-4 text-gray-500 text-lg max-w-2xl leading-relaxed">
+            Track earnings, monitor orders,
+            and analyze your freelance business growth.
+          </p>
+
+        </div>
+
+        {/* RANGE */}
+        <div className="flex items-center gap-3">
+
+          <div className="bg-white border border-gray-200 rounded-2xl p-1 shadow-sm">
+
+            <select
+              value={range}
+              onChange={(e) =>
+                setRange(e.target.value)
+              }
+
+              className="bg-transparent px-5 py-3 rounded-xl outline-none text-sm font-medium"
+            >
+              <option value="7d">
+                Last 7 Days
+              </option>
+
+              <option value="30d">
+                Last 30 Days
+              </option>
+
+            </select>
+
           </div>
 
-          <select
-            value={range}
-            onChange={(e) => setRange(e.target.value)}
-            className="border px-4 py-2 rounded-lg bg-white shadow-sm"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-          </select>
         </div>
 
-        {/* STATS */}
-        <div className="grid md:grid-cols-4 gap-6">
-          <Card title="Orders" value={data.totalOrders} />
-          <Card title="Completed" value={data.completedOrders} />
-          <Card title="Active" value={data.activeOrders} />
-          <Card
-            title="Earnings"
-            value={`₹${data.totalEarnings}`}
-            highlight
-          />
-        </div>
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+
+        <StatCard
+          title="Total Orders"
+          value={data.totalOrders}
+          subtitle="All orders received"
+        />
+
+        <StatCard
+          title="Completed"
+          value={data.completedOrders}
+          subtitle="Successfully delivered"
+        />
+
+        <StatCard
+          title="Active Orders"
+          value={data.activeOrders}
+          subtitle="Currently in progress"
+        />
+
+        <StatCard
+          title="Total Earnings"
+          value={`₹${Number(
+            data.totalEarnings
+          ).toLocaleString("en-IN")}`}
+
+          subtitle="Revenue generated"
+
+          highlight
+        />
+
+      </div>
+
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
 
         {/* CHART */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm">
-          <h2 className="font-semibold mb-4">
-            Earnings Overview
-          </h2>
+        <div className="xl:col-span-2 bg-white rounded-[32px] border border-gray-200 shadow-sm p-8">
+
+          <div className="flex items-center justify-between mb-8">
+
+            <div>
+
+              <p className="text-sm font-medium text-green-600">
+                Performance
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">
+                Earnings Overview
+              </h2>
+
+            </div>
+
+            <div className="text-right">
+
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                Revenue
+              </p>
+
+              <h3 className="mt-1 text-3xl font-bold text-green-600">
+                ₹{Number(
+                  data.totalEarnings
+                ).toLocaleString("en-IN")}
+              </h3>
+
+            </div>
+
+          </div>
 
           {data.chartData.length === 0 ? (
-            <p className="text-gray-400 text-center py-10">
+
+            <div className="h-[320px] flex items-center justify-center text-gray-400">
               No earnings data available
-            </p>
+            </div>
+
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
+
+            <ResponsiveContainer
+              width="100%"
+              height={340}
+            >
+
+              <LineChart
+                data={data.chartData}
+              >
+
+                <CartesianGrid
+                  strokeDasharray="4 4"
+                  stroke="#e5e7eb"
+                />
+
+                <XAxis
+                  dataKey="date"
+                  stroke="#9ca3af"
+                  tickLine={false}
+                  axisLine={false}
+                />
+
+                <YAxis
+                  stroke="#9ca3af"
+                  tickLine={false}
+                  axisLine={false}
+                />
+
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "18px",
+                    border:
+                      "1px solid #e5e7eb",
+                    boxShadow:
+                      "0 10px 30px rgba(0,0,0,.08)",
+                  }}
+                />
 
                 <Line
                   type="monotone"
                   dataKey="earnings"
                   stroke="#22c55e"
-                  strokeWidth={3}
-                  dot={{ r: 4 }}
+                  strokeWidth={4}
+                  dot={{
+                    r: 5,
+                    strokeWidth: 2,
+                  }}
+                  activeDot={{
+                    r: 7,
+                  }}
                 />
+
               </LineChart>
+
             </ResponsiveContainer>
           )}
+
         </div>
 
         {/* RECENT ORDERS */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm">
+        <div className="bg-white rounded-[32px] border border-gray-200 shadow-sm p-8 flex flex-col">
 
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">
-              Recent Orders (Last 5)
-            </h2>
+          <div className="flex items-start justify-between mb-8">
+
+            <div>
+
+              <p className="text-sm font-medium text-green-600">
+                Orders
+              </p>
+
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">
+                Recent Orders
+              </h2>
+
+            </div>
 
             <button
-              onClick={() => navigate("/orders")}
-              className="text-green-600 text-sm hover:underline"
+              onClick={() =>
+                navigate("/orders")
+              }
+
+              className="text-sm font-semibold text-green-600 hover:text-green-700 transition"
             >
               View All
             </button>
+
           </div>
 
           {data.recentOrders.length === 0 ? (
-            <p className="text-gray-400">No recent orders</p>
+
+            <div className="flex-1 flex items-center justify-center text-gray-400">
+              No recent orders
+            </div>
+
           ) : (
+
             <div className="space-y-4">
-              {data.recentOrders.map((order) => (
-                <div
-                  key={order._id}
-                  className="flex justify-between items-center border-b pb-3 hover:bg-gray-50 px-2 rounded-lg transition"
-                >
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {order.title}
-                    </p>
 
-                    <p className="text-xs text-gray-400">
-                      Order ID: {order._id.slice(-6)}
-                    </p>
+              {data.recentOrders.map(
+                (order) => (
 
-                    <p
-                      className={`text-xs mt-1 ${
-                        order.status === "completed"
-                          ? "text-green-500"
-                          : order.status === "pending"
-                          ? "text-yellow-500"
-                          : "text-blue-500"
-                      }`}
-                    >
-                      {order.status}
-                    </p>
+                  <div
+                    key={order._id}
+
+                    className="border border-gray-100 rounded-2xl p-5 hover:border-green-200 hover:shadow-md transition-all"
+                  >
+
+                    <div className="flex items-start justify-between gap-4">
+
+                      <div>
+
+                        <h3 className="font-semibold text-gray-900">
+                          {order.title}
+                        </h3>
+
+                        <p className="text-xs text-gray-400 mt-1">
+                          Order ID:
+                          {" "}
+                          {order._id.slice(-6)}
+                        </p>
+
+                      </div>
+
+                      <p className="font-bold text-green-600 text-lg whitespace-nowrap">
+                        ₹{order.price}
+                      </p>
+
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+
+                      <div
+                        className={`
+                          text-xs px-3 py-1 rounded-full font-medium capitalize
+                          ${
+                            order.status ===
+                            "completed"
+                              ? "bg-green-100 text-green-700"
+                              : order.status ===
+                                "pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-blue-100 text-blue-700"
+                          }
+                        `}
+                      >
+                        {order.status}
+                      </div>
+
+                    </div>
+
                   </div>
+                )
+              )}
 
-                  <p className="font-semibold text-green-600">
-                    ₹{order.price}
-                  </p>
-                </div>
-              ))}
             </div>
           )}
+
         </div>
 
       </div>
+
     </div>
-  );
+  </div>
+);
 };
 
 // 🔥 CARD
-const Card = ({ title, value, highlight }) => (
+const StatCard = ({
+  title,
+  value,
+  subtitle,
+  highlight,
+}) => (
   <div
-    className={`p-6 rounded-2xl shadow-sm transition hover:shadow-md ${
-      highlight ? "bg-green-500 text-white" : "bg-white"
-    }`}
+    className={`
+      rounded-[28px]
+      p-7
+      border
+      transition-all
+      duration-300
+      hover:-translate-y-1
+      hover:shadow-xl
+      ${
+        highlight
+          ? "bg-green-500 border-green-500 text-white shadow-green-100"
+          : "bg-white border-gray-200 shadow-sm"
+      }
+    `}
   >
+
     <p
-      className={`text-sm ${
-        highlight ? "opacity-80" : "text-gray-500"
-      }`}
+      className={`
+        text-sm
+        font-medium
+        ${
+          highlight
+            ? "text-white/80"
+            : "text-gray-500"
+        }
+      `}
     >
       {title}
     </p>
 
-    <p className="text-2xl font-bold mt-2">{value}</p>
+    <h3 className="mt-4 text-4xl font-bold tracking-tight">
+      {value}
+    </h3>
+
+    <p
+      className={`
+        mt-3
+        text-sm
+        ${
+          highlight
+            ? "text-white/75"
+            : "text-gray-400"
+        }
+      `}
+    >
+      {subtitle}
+    </p>
+
   </div>
 );
 

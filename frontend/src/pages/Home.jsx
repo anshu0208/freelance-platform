@@ -57,9 +57,9 @@ const GigCard = ({ gig, onClick }) => (
     className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition p-4 cursor-pointer group"
   >
     <div className="h-40 bg-gray-200 rounded-lg mb-4 overflow-hidden">
-      {gig.image ? (
-        <img
-          src={gig.image}
+      {gig.avatar?.url || gig.avatar ? (
+  <img
+    src={gig.avatar?.url || gig.avatar}
           alt={gig.title}
           className="w-full h-full object-cover group-hover:scale-105 transition"
         />

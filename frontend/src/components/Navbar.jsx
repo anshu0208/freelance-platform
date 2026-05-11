@@ -119,14 +119,6 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-3 w-48 bg-white shadow-lg rounded-xl border overflow-hidden">
 
                     <Link
-                      to="/profile"
-                      className="block px-4 py-2 hover:bg-gray-100 text-sm"
-                      onClick={() => setOpen(false)}
-                    >
-                      Profile
-                    </Link>
-
-                    <Link
                       to="/orders"
                       className="block px-4 py-2 hover:bg-gray-100 text-sm"
                       onClick={() => setOpen(false)}
